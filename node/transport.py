@@ -354,6 +354,8 @@ class CryptoTransportLayer(TransportLayer):
         guid = peer_tuple[2]
         nickname = peer_tuple[3]
 
+        self.log.info("Adding peer to db: %s %s %s %s" % (uri, pubkey, guid, nickname))
+
         # Update query
         self.db.deleteEntries("peers", {"uri": uri, "guid": guid}, "OR")
         # if len(results) > 0:
@@ -672,6 +674,7 @@ class CryptoTransportLayer(TransportLayer):
         signature = ec_key.sign(digest)
 
         # Send array of nickname, pubkey, signature to transport layer
+        self.log.info("sending pubkey")
         self.send(proto_response_pubkey(nickname, pubkey, signature))
 
     def pubkey_exists(self, pub):
@@ -714,20 +717,25 @@ class CryptoTransportLayer(TransportLayer):
                 for activePeer in self.dht.activePeers:
                     if activePeer.guid == send_to:
                         peer = activePeer
+                        self.log.info("got from activepeers")
                         break
+            else:
+                self.log.info("got from routingtable")
 
             # peer = CryptoPeerConnection(msg['uri'])
             if peer:
+                self.log.info("Sending message %s to %s" % (data.get('type'), peer.address))
                 self.log.debug('Directed Data (%s): %s' % (send_to, data))
                 try:
                     peer.send(data, callback=callback)
                 except Exception as e:
                     self.log.error('Not sending message directly to peer %s' % e)
             else:
-                self.log.error('No peer found')
+                self.log.error('Send failed - No peer route found to reach %s' % send_to)
 
         else:
             # FindKey and then send
+            self.log.debug("Notdirected Data (%s): %s" % (send_to, data))
 
             for peer in self.dht.activePeers:
                 try:
@@ -741,7 +749,7 @@ class CryptoTransportLayer(TransportLayer):
                     peer.send(data, cb)
 
                 except:
-                    self.log.info("Error sending over peer!")
+                    self.log.info("Error sending over peer: %s" % peer.guid)
                     traceback.print_exc()
 
     def send_enc(self, uri, msg):
@@ -821,7 +829,9 @@ class CryptoTransportLayer(TransportLayer):
         nickname = msg.get('senderNick')[:120]
 
         self.dht.add_known_node((ip, port, guid, nickname))
-        self.log.info('On Message: %s' % json.dumps(msg, ensure_ascii=False))
+        self.log.info('On Message From %s %s' % (uri, msg.get('type')))
+        self.log.info('On Message %s' % json.dumps(msg, ensure_ascii=False))
+
         self.dht.add_peer(self, uri, pubkey, guid, nickname)
         t = Thread(target=self.trigger_callbacks, args=(msg['type'], msg,))
         t.start()

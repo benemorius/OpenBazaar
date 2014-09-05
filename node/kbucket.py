@@ -44,6 +44,7 @@ class KBucket(object):
             # Assume contact exists. Attempt to remove the old one...
             self.contacts.remove(contact)
             # ... and add the new one at the end of the list.
+            self.log.info("adding contact %s %s %s" % (contact.address, contact.nickname, contact.guid))
             self.contacts.append(contact)
 
             # The code above works as follows:
@@ -58,17 +59,18 @@ class KBucket(object):
             if len(self.contacts) < constants.k:
                 self.contacts.append(contact)
             else:
+                self.log.warn("No space in bucket to insert contact ")
                 raise BucketFull('No space in bucket to insert contact')
 
     def getContact(self, contactID):
         """Get the contact with the specified node ID."""
         self.log.debug('[getContact] %s' % contactID)
-        self.log.debug('contacts %s' % self.contacts)
+        #self.log.debug('contacts %s' % self.contacts)
         for contact in self.contacts:
             if contact.guid == contactID:
                 self.log.debug('[getContact] Found %s' % contact)
                 return contact
-        self.log.debug('[getContact] No Results')
+        self.log.debug('[getContact] Not Found: %s' % contactID)
 
     def getContacts(self, count=-1, excludeContact=None):
         """
@@ -125,12 +127,13 @@ class KBucket(object):
 
         @raise ValueError: The specified contact is not in this bucket
         """
-        self.log.debug('Contacts %s %s' % (contact, self.contacts))
+        self.log.info("removing contact %s" % contact)
+        #self.log.debug('Contacts %s %s' % (contact, self.contacts))
         try:
             self.contacts.remove(contact)
         except ValueError:
             raise ValueError('Contact was not found in this bucket')
-        self.log.debug('Contacts %s %s' % (contact, self.contacts))
+        #self.log.debug('Contacts %s %s' % (contact, self.contacts))
 
     def keyInRange(self, key):
         """
@@ -146,8 +149,10 @@ class KBucket(object):
                  C{False} otherwise.
         @rtype: bool
         """
+        self.log.debug("keyInRange: %s" % key)
         if isinstance(key, string_types):
             key = long(key, 16)
+            self.log.debug("keyInRange: now %s" % key)
         return self.rangeMin <= key < self.rangeMax
 
     def __len__(self):

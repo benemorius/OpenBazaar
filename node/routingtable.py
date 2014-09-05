@@ -169,6 +169,7 @@ class TreeRoutingTable(RoutingTable):
             try:
                 self.buckets[bucketIndex].addContact(contact)
             except kbucket.BucketFull:
+                self.log.error("BucketFull1")
                 # The bucket is full; see if it can be split (by checking if
                 # its range includes the host node's id)
                 if self.buckets[bucketIndex].keyInRange(self.parentNodeID):
@@ -365,8 +366,10 @@ class TreeRoutingTable(RoutingTable):
         i = 0
         for bucket in self.buckets:
             if bucket.keyInRange(valKey):
+                self.log.debug("inRange")
                 return i
             else:
+                self.log.debug("not inRange")
                 i += 1
         return i
 
@@ -397,6 +400,7 @@ class TreeRoutingTable(RoutingTable):
                                list of k-buckets)
         @type oldBucketIndex: int
         """
+        self.log.warn("splitBucket")
         # Resize the range of the current (old) k-bucket
         oldBucket = self.buckets[oldBucketIndex]
         splitPoint = oldBucket.rangeMax - (oldBucket.rangeMax - oldBucket.rangeMin) / 2
@@ -409,6 +413,7 @@ class TreeRoutingTable(RoutingTable):
         # Now, add the new bucket into the routing table tree
         self.buckets.insert(oldBucketIndex + 1, newBucket)
         # Finally, copy all nodes that belong to the new k-bucket into it...
+        self.log.debug("copying nodes to new bucket")
         for contact in oldBucket.contacts:
             if newBucket.keyInRange(contact.guid):
                 newBucket.addContact(contact)
@@ -449,13 +454,18 @@ class OptimizedTreeRoutingTable(TreeRoutingTable):
 
         bucketIndex = self.kbucketIndex(contact.guid)
 
+        self.log.info("numbuckets: %s" % len(self.buckets))
+        self.log.info("selecting bucketIndex: %s" % bucketIndex)
+
         old_contact = self.buckets[bucketIndex].getContact(contact)
 
         if not old_contact:
 
             try:
                 self.buckets[bucketIndex].addContact(contact)
+                self.log.info("node added; bucket %s now has %s nodes" % (bucketIndex, len(self.buckets[bucketIndex])))
             except kbucket.BucketFull:
+                self.log.error("BucketFull2")
                 # The bucket is full; see if it can be split (by checking if
                 # its range includes the host node's id)
                 if self.buckets[bucketIndex].keyInRange(self.parentNodeID):
@@ -473,14 +483,18 @@ class OptimizedTreeRoutingTable(TreeRoutingTable):
                     # corresponding k-bucket (or update it's position if it
                     # exists already)
                     if bucketIndex not in self.replacementCache:
+                        self.log.warn("bfrtk")
                         self.replacementCache[bucketIndex] = []
                     if contact in self.replacementCache[bucketIndex]:
+                        self.log.warn("bfrtk in replacement cache; removing to re-add")
                         self.replacementCache[bucketIndex].remove(contact)
                     # TODO: Using k to limit the size of the contact
                     # replacement cache - maybe define a separate value for
                     # this in constants.py?
                     elif len(self.replacementCache) >= constants.k:
+                        self.log.warn("bfrtk replacement cache over size limit")
                         self.replacementCache.pop(0)
+                    self.log.warn("bfrtk adding to replacement cache")
                     self.replacementCache[bucketIndex].append(contact)
 
         else:
@@ -492,6 +506,8 @@ class OptimizedTreeRoutingTable(TreeRoutingTable):
                 try:
                     self.buckets[bucketIndex].addContact(contact)
                 except kbucket.BucketFull:
+                    self.log.error("BucketFull3")
+
                     # The bucket is full; see if it can be split (by checking
                     # if its range includes the host node's id)
                     if self.buckets[bucketIndex].keyInRange(self.parentNodeID):
@@ -535,6 +551,7 @@ class OptimizedTreeRoutingTable(TreeRoutingTable):
 
         if contact:
             self.buckets[bucketIndex].removeContact(contact)
+            self.log.info("node removed; bucket %s now has %s nodes" % (bucketIndex, len(self.buckets[bucketIndex])))
             # Replace this stale contact with one from our replacement
             # cache, if we have any
             if bucketIndex in self.replacementCache:

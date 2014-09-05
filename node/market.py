@@ -302,6 +302,7 @@ class Market(object):
         )
 
     def republish_contracts(self):
+        self.log.info("Publishing contracts")
         listings = self.db.selectEntries("contracts", {"deleted": 0})
         for listing in listings:
             self.transport.dht.iterativeStore(
@@ -310,6 +311,7 @@ class Market(object):
                 listing.get('signed_contract_body'),
                 self.transport.guid
             )
+        self.log.info("Finished republishing contracts")
         self.update_listings_index()
 
     def get_notaries(self, online_only=False):
@@ -570,7 +572,7 @@ class Market(object):
     # PAGE QUERYING
     def query_page(self, find_guid, callback=lambda msg: None):
 
-        self.log.info('Searching network for node: %s' % find_guid)
+        self.log.info('Querying node for market page: %s' % find_guid)
         msg = query_page(find_guid)
         msg['uri'] = self.transport.uri
         msg['senderGUID'] = self.transport.guid

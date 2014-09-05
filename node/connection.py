@@ -79,6 +79,8 @@ class PeerConnection(object):
                 stream.close()
 
             stream.on_recv_stream(cb)
+        #except zmq.ZMQError as e:
+            #self.log.error(e)
         except Exception as e:
             self.log.error(e)
             # Shouldn't we raise the exception here?
@@ -166,7 +168,7 @@ class CryptoPeerConnection(PeerConnection):
                 cb
             )
         else:
-            self.log.error('CryptoPeerConnection.check_port() failed.')
+            self.log.error("Failed to connect to new peer for handshake: %s %s %s" % (self.address, self.guid, self.nickname))
 
     def __repr__(self):
         return '{ guid: %s, ip: %s, port: %s, pubkey: %s }' % (
@@ -182,13 +184,14 @@ class CryptoPeerConnection(PeerConnection):
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.settimeout(1)
             s.connect((self.ip, self.port))
-        except socket.error:
+        except socket.error as e:
+            self.log.info("IPv4 socket exception on %s:%i %s" % (self.ip, self.port,  e))
             try:
                 s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
                 s.settimeout(1)
                 s.connect((self.ip, self.port))
             except socket.error as e:
-                self.log.error("socket error on %s: %s" % (self.ip, e))
+                self.log.info("IPv6 socket exception on %s:%i %s" % (self.ip, self.port, e))
                 self.transport.dht.remove_active_peer(self.address)
                 return False
         except TypeError:
@@ -229,9 +232,8 @@ class CryptoPeerConnection(PeerConnection):
                 data['pubkey'] = self.transport.pubkey
                 data['senderNick'] = self.transport.nickname
 
-                self.log.debug(
-                    'Sending to peer: %s %s' % (self.ip, pformat(data))
-                )
+                self.log.info('Sending to peer: %s' % self.ip)
+                self.log.debug('data before encryption: %s' % pformat(data))
 
                 if self.pub == '':
                     self.log.info('There is no public key for encryption')

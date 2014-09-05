@@ -155,7 +155,7 @@ class DHT(object):
                                                       nickname)
 
             def cb():
-                self.log.debug('Back from handshake')
+                self.log.info('Finished handshake; adding %s %s %s' % (new_peer.address,new_peer.guid, new_peer.nickname))
                 self.routingTable.removeContact(new_peer.guid)
                 self.routingTable.addContact(new_peer)
                 self.transport.save_peer_to_db(peer_tuple)
@@ -449,7 +449,7 @@ class DHT(object):
             self.log.error('There was no search found for this ID')
             return
 
-        self.log.debug('Short list before: %s' % search.shortlist)
+        #self.log.debug('Short list before: %s' % search.shortlist)
 
         for node in foundNodes:
 
@@ -474,7 +474,7 @@ class DHT(object):
                 self.log.debug('Adding new peer to active peers list: %s' % node)
                 self.add_peer(self.transport, node_uri, node_pubkey, node_guid, node_nick)
 
-        self.log.debug('Short list after: %s' % search.shortlist)
+        #self.log.debug('Short list after: %s' % search.shortlist)
 
     def find_listings(self, transport, key, listingFilter=None, callback=None):
         """ Send a get product listings call to the node in question and then cache those listings locally
@@ -735,6 +735,7 @@ class DHT(object):
             self.log.info('Looking for node in your active connections list')
             for node in self.activePeers:
                 if node.guid == key:
+                    self.log.info("Looking for node FOUND IT %s %s %s %s" % (node.guid, node.address, node.nickname, node.pub))
                     return [node]
 
         if startupShortlist == [] or startupShortlist is None:
@@ -811,7 +812,7 @@ class DHT(object):
 
         # Sort short list again
         if len(new_search.shortlist) > 1:
-            self.log.info('Short List: %s' % new_search.shortlist)
+            #self.log.info('Short List: %s' % new_search.shortlist)
 
             # Remove dupes
             new_search.shortlist = self.dedupe(new_search.shortlist)
@@ -913,4 +914,4 @@ class DHTSearch(object):
             if item not in self.shortlist:
                 self.shortlist.append(item)
 
-        self.log.debug('Updated short list: %s' % self.shortlist)
+        #self.log.debug('Updated short list: %s' % self.shortlist)

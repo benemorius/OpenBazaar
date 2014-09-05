@@ -786,6 +786,7 @@ class ProtocolHandler:
         msg['pubkey'] = self.transport.pubkey
         msg['senderGUID'] = self.transport.guid
         msg['senderNick'] = self.transport.nickname
+        self.log.info("shout uri: %s" % msg['uri'])
         self.transport.send(protocol.shout(msg))
 
     def on_node_search_value(self, results, key):
