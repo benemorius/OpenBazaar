@@ -117,6 +117,9 @@ class CryptoPeerConnection(PeerConnection):
         self.ip = addr_info[0][4][0]
 
     def start_handshake(self, handshake_cb=None):
+        if self.address == self.transport.uri:
+            self.log.debug("Not starting handshake with self")
+            return
         if self.check_port():
             def cb(msg):
                 if msg:

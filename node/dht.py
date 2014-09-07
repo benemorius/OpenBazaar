@@ -72,6 +72,8 @@ class DHT(object):
                 del self.activePeers[idx]
 
     def add_seed(self, transport, uri):
+        if uri == self.transport.uri:
+            return
 
         new_peer = self.transport.get_crypto_peer(uri=uri)
         self.log.debug(new_peer)
@@ -97,6 +99,9 @@ class DHT(object):
         assert uri
 
         if uri is not None:
+            if uri == self.transport.uri:
+                self.log.debug("Not adding self as peer")
+                return
 
             peer_tuple = (uri, pubkey, guid, nickname)
 
