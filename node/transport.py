@@ -120,9 +120,18 @@ class TransportLayer(object):
             except (AttributeError, socket.error, ValueError):
                 self.socket.bind('tcp://*:%s' % self.port)
 
-        self.stream = zmqstream.ZMQStream(
-            self.socket, io_loop=ioloop.IOLoop.current()
-        )
+        self.log.error("listen stream")
+        try:
+            self.stream = zmqstream.ZMQStream(
+                self.socket, io_loop=ioloop.IOLoop.current()
+            )
+        except zmq.ZMQError as e:
+            self.log.error("zmq exception: %s" % e)
+            raise
+        except Exception as e:
+            self.log.error("other exception: %s" % e)
+            raise
+        self.log.error("did listen stream")
 
         def handle_recv(message):
             for msg in message:

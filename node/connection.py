@@ -61,7 +61,10 @@ class PeerConnection(object):
                 s.connect(self.address)
 
             stream = zmqstream.ZMQStream(s, io_loop=ioloop.IOLoop.current())
+            self.log.error("gonna send")
+            self.log.error("stream is ]%s[" % stream)
             stream.send(compressed_data)
+            self.log.error("did send")
 
             def cb(stream, msg):
                 response = json.loads(msg[0])
@@ -79,12 +82,17 @@ class PeerConnection(object):
                 stream.close()
 
             stream.on_recv_stream(cb)
-        #except zmq.ZMQError as e:
-            #self.log.error(e)
+        except zmq.ZMQError as e:
+            self.log.error("zmq exception: %s" % e)
+            raise
         except Exception as e:
-            self.log.error(e)
+            self.log.error("other exception: %s" % e)
             # Shouldn't we raise the exception here?
             # I think not doing this could cause buggy behavior on top.
+            self.log.error("raising")
+            raise
+        except:
+            self.log.error("wtf exception")
             raise
 
 
