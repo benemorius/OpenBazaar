@@ -4,9 +4,10 @@ class Contact(object):
 
     Encapsulates information about a single remote contact.
     """
-    def __init__(self, guid, uri, firstComm=0):
+    def __init__(self, guid, uri, name='', firstComm=0):
         self.guid = guid
         self.uri = uri
+        self.name = name
         # self._peerConnection = PeerConnection(uri, guid)
         self.commTime = firstComm
         self.failedRPCs = 0

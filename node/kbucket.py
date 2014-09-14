@@ -44,7 +44,7 @@ class KBucket(object):
             # Assume contact exists. Attempt to remove the old one...
             self.contacts.remove(contact)
             # ... and add the new one at the end of the list.
-            self.log.info("adding contact %s %s %s" % (contact.address, contact.nickname, contact.guid))
+            self.log.info("adding contact %s %s %s" % (contact.uri, contact.name, contact.guid))
             self.contacts.append(contact)
 
             # The code above works as follows:
