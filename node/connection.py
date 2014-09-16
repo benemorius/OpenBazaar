@@ -91,6 +91,8 @@ class CryptoPeerConnection(PeerConnection):
     def __init__(self, transport, address, pub=None, guid=None, nickname=None,
                  sin=None, callback=lambda msg: None):
 
+        PeerConnection.__init__(self, transport, address)
+
         # self._priv = transport._myself
         self.pub = pub
 
@@ -105,8 +107,6 @@ class CryptoPeerConnection(PeerConnection):
         self.peer_alive = False  # unused; might remove it later if unnecessary
         self.guid = guid
         self.address = "tcp://%s:%s" % (self.ip, self.port)
-
-        PeerConnection.__init__(self, transport, address)
 
         self.log = logging.getLogger(
             '[%s] %s' % (transport.market_id, self.__class__.__name__)
