@@ -846,7 +846,8 @@ class CryptoTransportLayer(TransportLayer):
                     try:
                         data = cryptor.decrypt(data)
                     except Exception as e:
-                        self.log.info('Exception: %s' % e)
+                        self.log.error('Exception: %s' % e)
+                        return
 
                     self.log.debug('Signature: %s' % sig.encode('hex'))
                     self.log.debug('Signed Data: %s' % data)
