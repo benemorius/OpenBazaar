@@ -57,7 +57,12 @@ class PeerConnection(object):
             except zmq.ZMQError as e:
                 if e.errno != errno.EINVAL:
                     raise
-                s.ipv6 = True
+                try:
+                    s.ipv6 = True
+                except AttributeError:
+                    self.log.error("no ipv6")
+                    print "no ipv6"
+                    return
                 s.connect(self.address)
 
             stream = zmqstream.ZMQStream(s, io_loop=ioloop.IOLoop.current())
