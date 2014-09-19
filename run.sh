@@ -166,6 +166,9 @@ HTTP_OPTS="-k $HTTP_IP -q $HTTP_PORT"
 
 if [ -z "$SERVER_IP" ]; then
     SERVER_IP=$(wget -qO- icanhazip.com)
+    DISABLE_IP_UPDATE=""
+else
+    DISABLE_IP_UPDATE="--disable-ip-update"
 fi
 
 if [ ! -d "$LOGDIR" ]; then
@@ -209,7 +212,7 @@ if [ "$SEED_MODE" == 1 ]; then
        wait
     fi
 
-    $PYTHON node/openbazaar_daemon.py $SERVER_IP $HTTP_OPTS -p $SERVER_PORT $DISABLE_UPNP --database "$DATABASE_FILE" -s 1 --bmuser $BM_USERNAME --bmpass $BM_PASSWORD --bmport $BM_PORT -l $LOGDIR/production.log -u 1 --log_level $LOG_LEVEL $DISABLE_OPEN_DEFAULT_WEBBROWSER $DISABLE_SQLITE_CRYPT &
+    $PYTHON node/openbazaar_daemon.py $SERVER_IP $HTTP_OPTS -p $SERVER_PORT $DISABLE_UPNP --database "$DATABASE_FILE" -s 1 --bmuser $BM_USERNAME --bmpass $BM_PASSWORD --bmport $BM_PORT -l $LOGDIR/production.log -u 1 --log_level $LOG_LEVEL $DISABLE_OPEN_DEFAULT_WEBBROWSER $DISABLE_SQLITE_CRYPT $DISABLE_IP_UPDATE &
 
 elif [ "$DEVELOPMENT" == 0 ]; then
     echo "Production Mode"
@@ -221,7 +224,7 @@ elif [ "$DEVELOPMENT" == 0 ]; then
        wait
     fi
 
-	$PYTHON node/openbazaar_daemon.py $SERVER_IP $HTTP_OPTS -p $SERVER_PORT $DISABLE_UPNP --database "$DATABASE_FILE" --bmuser $BM_USERNAME --bmpass $BM_PASSWORD --bmport $BM_PORT -S $SEED_URI -l $LOGDIR/production.log -u 1 --log_level $LOG_LEVEL $DISABLE_OPEN_DEFAULT_WEBBROWSER $DISABLE_SQLITE_CRYPT &
+	$PYTHON node/openbazaar_daemon.py $SERVER_IP $HTTP_OPTS -p $SERVER_PORT $DISABLE_UPNP --database "$DATABASE_FILE" --bmuser $BM_USERNAME --bmpass $BM_PASSWORD --bmport $BM_PORT -S $SEED_URI -l $LOGDIR/production.log -u 1 --log_level $LOG_LEVEL $DISABLE_OPEN_DEFAULT_WEBBROWSER $DISABLE_SQLITE_CRYPT $DISABLE_IP_UPDATE &
 
 else
 	# Primary Market - No SEED_URI specified
@@ -234,7 +237,7 @@ else
        wait
     fi
 
-	$PYTHON node/openbazaar_daemon.py 127.0.0.1 $HTTP_OPTS $DISABLE_UPNP --database db/ob-dev.db -s 1 --bmuser $BM_USERNAME -d --bmpass $BM_PASSWORD --bmport $BM_PORT -l $LOGDIR/development.log -u 1 --log_level $LOG_LEVEL $DISABLE_OPEN_DEFAULT_WEBBROWSER $DISABLE_SQLITE_CRYPT &
+	$PYTHON node/openbazaar_daemon.py 127.0.0.1 $HTTP_OPTS $DISABLE_UPNP --database db/ob-dev.db -s 1 --bmuser $BM_USERNAME -d --bmpass $BM_PASSWORD --bmport $BM_PORT -l $LOGDIR/development.log -u 1 --log_level $LOG_LEVEL $DISABLE_OPEN_DEFAULT_WEBBROWSER $DISABLE_SQLITE_CRYPT $DISABLE_IP_UPDATE &
     ((NODES=NODES+1))
     i=2
     while [[ $i -le $NODES ]]
@@ -246,7 +249,7 @@ else
            $PYTHON node/setup_db.py db/ob-dev-$i.db $DISABLE_SQLITE_CRYPT
            wait
         fi
-	    $PYTHON node/openbazaar_daemon.py 127.0.0.$i $HTTP_OPTS $DISABLE_UPNP --database db/ob-dev-$i.db -d --bmuser $BM_USERNAME --bmpass $BM_PASSWORD --bmport $BM_PORT -S 127.0.0.1 -l $LOGDIR/development.log -u $i --log_level $LOG_LEVEL $DISABLE_OPEN_DEFAULT_WEBBROWSER $DISABLE_SQLITE_CRYPT &
+	    $PYTHON node/openbazaar_daemon.py 127.0.0.$i $HTTP_OPTS $DISABLE_UPNP --database db/ob-dev-$i.db -d --bmuser $BM_USERNAME --bmpass $BM_PASSWORD --bmport $BM_PORT -S 127.0.0.1 -l $LOGDIR/development.log -u $i --log_level $LOG_LEVEL $DISABLE_OPEN_DEFAULT_WEBBROWSER $DISABLE_SQLITE_CRYPT $DISABLE_IP_UPDATE &
 	    ((i=i+1))
     done
 fi

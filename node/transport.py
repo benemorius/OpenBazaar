@@ -266,7 +266,7 @@ class TransportLayer(object):
 class CryptoTransportLayer(TransportLayer):
 
     def __init__(self, my_ip, my_port, market_id, db, bm_user=None, bm_pass=None,
-                 bm_port=None, seed_mode=0, dev_mode=False):
+                 bm_port=None, seed_mode=0, dev_mode=False, disable_ip_update=False):
 
         self.log = logging.getLogger(
             '[%s] %s' % (market_id, self.__class__.__name__)
@@ -310,7 +310,7 @@ class CryptoTransportLayer(TransportLayer):
         self.setup_callbacks()
         self.listen(self.pubkey)
 
-        if seed_mode == 0 and not dev_mode:
+        if seed_mode == 0 and not dev_mode and not disable_ip_update:
             self.start_ip_address_checker()
 
     def setup_callbacks(self):
