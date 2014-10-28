@@ -832,8 +832,12 @@ class CryptoTransportLayer(TransportLayer):
     def _on_raw_message(self, serialized):
         try:
 
-            # Decompress message
-            serialized = zlib.decompress(serialized)
+            try:
+                serialized = zlib.decompress(serialized)
+            except zlib.error as e:
+                self.log.error("Message decompression failed. Upgrade client")
+                print("Message decompression failed. Upgrade client")
+                return
 
             msg = json.loads(serialized)
             self.log.info("Message Received [%s]" % msg.get('type', 'unknown'))
