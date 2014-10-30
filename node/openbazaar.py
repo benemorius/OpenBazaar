@@ -138,6 +138,7 @@ openbazaar [options] <command>
         Expected <level> values are:
            0 - NOT SET
            5 - DATADUMP
+           7 - DEBUGV
           10 - DEBUG
           20 - INFO
           30 - WARNING

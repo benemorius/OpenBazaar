@@ -146,7 +146,7 @@ class OpenBazaarContext(object):
                 'disable_open_browser': False,
                 'disable_sqlite_crypt': False,
                 'log_level': 30,
-                # CRITICAL=50, ERROR=40, WARNING=30, DEBUG=10, DATADUMP=5, NOTSET=0
+                # CRITICAL=50 ERROR=40 WARNING=30 DEBUG=10 DEBUGV=7 DATADUMP=5 NOTSET=0
                 'http_ip': '127.0.0.1',
                 'http_port': 0,
                 'bm_user': None,
@@ -305,6 +305,14 @@ def create_custom_log_levels():
             self._log(5, message, args, **kwargs)
 
     logging.Logger.datadump = datadump
+
+    logging.addLevelName(7, "DEBUGV")
+
+    def debugv(self, message, *args, **kws):
+        if self.isEnabledFor(7):
+            self._log(7, message, args, **kws)
+
+    logging.Logger.debugv = debugv
 
 
 def create_logger(ob_ctx):
