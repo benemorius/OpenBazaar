@@ -10,7 +10,6 @@ import logging
 from PIL import Image, ImageOps
 import random
 from StringIO import StringIO
-from threading import Thread
 import traceback
 
 from bitcoin.main import privkey_to_pubkey
@@ -361,8 +360,7 @@ class Market(object):
             contract = listing.get('Contract')
             keywords = contract.get('item_keywords') if contract is not None else []
 
-            t3 = Thread(target=self.update_keywords_on_network, args=(listing.get('key'), keywords,))
-            t3.start()
+            self.update_keywords_on_network(listing.get('key'), keywords)
 
         # Updating the DHT index of your store's listings
         self.update_listings_index()
@@ -450,15 +448,11 @@ class Market(object):
         }
 
         # Pass off to thread to keep GUI snappy
-        t = Thread(
-            target=self.transport.store,
-            args=(
-                contract_index_key,
-                value,
-                self.transport.guid,
-                )
-            )
-        t.start()
+        self.transport.store(
+            contract_index_key,
+            value,
+            self.transport.guid
+        )
 
     def remove_contract(self, msg):
         """Remove contract and update own list of contracts keywords"""

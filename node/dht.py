@@ -8,7 +8,6 @@ import logging
 import os
 import routingtable
 import time
-from threading import Thread
 
 import network_util
 
@@ -82,7 +81,7 @@ class DHT(object):
             )
             self.log.debug('Known Nodes: %s', self.knownNodes)
 
-        Thread(target=new_peer.start_handshake, args=(start_handshake_cb,)).start()
+        new_peer.start_handshake(start_handshake_cb)
 
     def add_peer(self, transport, uri, pubkey=None, guid=None, nickname=None):
         """ This takes a tuple (pubkey, URI, guid) and adds it to the active
@@ -141,8 +140,7 @@ class DHT(object):
             self.log.debug('Back from handshake %s', new_peer)
             self.transport.save_peer_to_db(peer_tuple)
 
-        t = Thread(target=new_peer.start_handshake, args=(cb,))
-        t.start()
+        new_peer.start_handshake(cb)
 
     def _add_known_node(self, node):
         """ Accept a peer tuple and add it to known nodes list
@@ -781,7 +779,7 @@ class DHT(object):
                                "pubkey": contact.transport.pubkey}
                         self.log.debug('Sending findNode to: %s %s', contact.address, msg)
 
-                        Thread(target=contact.send, args=(msg,)).start()
+                        contact.send(msg)
                         new_search.contactedNow += 1
 
                     else:

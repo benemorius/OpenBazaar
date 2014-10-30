@@ -5,7 +5,6 @@ import logging
 from pprint import pformat
 import random
 import sys
-from threading import Thread
 import traceback
 import xmlrpclib
 
@@ -476,8 +475,7 @@ class CryptoTransportLayer(TransportLayer):
 
         self.log.info('On Message: %s', json.dumps(msg, ensure_ascii=False))
         self.dht.add_peer(self, uri, pubkey, guid, nickname)
-        t = Thread(target=self.trigger_callbacks, args=(msg['type'], msg,))
-        t.start()
+        self.trigger_callbacks(msg['type'], msg)
 
     def store(self, *args, **kwargs):
         """
