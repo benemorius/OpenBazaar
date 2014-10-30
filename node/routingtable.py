@@ -283,7 +283,7 @@ class TreeRoutingTable(RoutingTable):
                 canGoHigher = bucketIndex + (i + 1) < len(self.buckets)
             i += 1
 
-        self.log.debug('Closest Nodes: %s', closestNodes)
+        self.log.datadump('Closest Nodes: %s', closestNodes)
         return closestNodes
 
     def getContact(self, node_id):
@@ -545,4 +545,4 @@ class OptimizedTreeRoutingTable(TreeRoutingTable):
             else:
                 self.buckets[bucket_index].addContact(cached)
         finally:
-            self.log.debug('Contacts: %s', self.buckets[bucket_index].contacts)
+            self.log.datadump('Contacts: %s', self.buckets[bucket_index].contacts)

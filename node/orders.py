@@ -137,7 +137,6 @@ class Orders(object):
             end_of_bid_index = offer_data.find('- -----BEGIN PGP SIGNATURE', bid_data_index, len(offer_data))
 
         buyer_data_json = "{" + offer_data[bid_data_index:end_of_bid_index]
-        print buyer_data_json
         buyer_data_json = json.loads(buyer_data_json)
 
         return buyer_data_json
@@ -260,7 +259,7 @@ class Orders(object):
         else:
             order['item_image'] = "img/no-photo.png"
 
-        self.log.debug('FULL ORDER: %s', order)
+        self.log.datadump('FULL ORDER: %s', order)
 
         return order
 

@@ -419,8 +419,6 @@ class CryptoTransportLayer(TransportLayer):
 
     def send(self, data, send_to=None, callback=None):
 
-        self.log.debug("Outgoing Data: %s %s", data, send_to)
-
         # Directed message
         if send_to is not None:
 
@@ -432,13 +430,22 @@ class CryptoTransportLayer(TransportLayer):
                         break
 
             if peer:
-                self.log.debug('Directed Data (%s): %s', send_to, data)
+                msgType = data.get('type')
+                nickname = peer.nickname
+                uri = peer.address
+
+                self.log.info("Sending message type '%s' to \"%s\" %s %s",
+                              msgType, nickname, uri, send_to)
+                self.log.datadump("Raw message: %s", data)
+
                 try:
                     peer.send(data, callback=callback)
                 except Exception as e:
-                    self.log.error('Not sending message directly to peer %s', e)
+                    self.log.error('Failed to send message directly to peer %s', e)
+
             else:
-                self.log.error('No peer found')
+                self.log.warning("Couldn't find peer %s to send message type %s",
+                               send_to, data.get('type'))
 
         else:
             # FindKey and then send
@@ -472,8 +479,11 @@ class CryptoTransportLayer(TransportLayer):
         uri = msg.get('uri')
         guid = msg.get('senderGUID')
         nickname = msg.get('senderNick')[:120]
+        msgType = msg.get('type')
 
-        self.log.info('On Message: %s', json.dumps(msg, ensure_ascii=False))
+        self.log.info("Received message type '%s' from \"%s\" %s %s",
+                      msgType, nickname, uri, guid)
+        self.log.datadump('Raw message: %s', json.dumps(msg, ensure_ascii=False))
         self.dht.add_peer(self, uri, pubkey, guid, nickname)
         self.trigger_callbacks(msg['type'], msg)
 

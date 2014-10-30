@@ -67,7 +67,7 @@ class PeerConnection(object):
             except ValueError:
                 self.log.error('[send_raw] Bad JSON response: %s', msg[0])
                 return
-            self.log.debug('[send_raw] %s', pformat(response))
+            self.log.datadump('[send_raw] response: %s', pformat(response))
 
             # Update active peer info
             self.nickname = response.get('senderNick', self.nickname)
@@ -185,6 +185,8 @@ class CryptoPeerConnection(GUIDMixin, PeerConnection):
         # Sign cleartext data
         sig_data = json.dumps(data).encode('hex')
         signature = self.sign(sig_data).encode('hex')
+
+        self.log.datadump('Sending to peer: %s %s', self.address, pformat(data))
 
         try:
             # Encrypt signature and data

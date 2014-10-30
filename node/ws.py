@@ -194,7 +194,7 @@ class ProtocolHandler(object):
         return "contracts" in data
 
     def on_listing_results(self, msg):
-        self.log.debug('Found results %s', msg)
+        self.log.datadump('Found results %s', msg)
         self.send_to_client(None, {
             "type": "store_contracts",
             "products": msg['contracts']
@@ -215,7 +215,7 @@ class ProtocolHandler(object):
         return True
 
     def on_listing_result(self, msg):
-        self.log.debug('Found result %s', msg)
+        self.log.datadump('Found result %s', msg)
         self.send_to_client(None, {
             "type": "store_contract",
             "contract": msg
@@ -390,7 +390,7 @@ class ProtocolHandler(object):
         self.market.save_settings(msg['settings'])
 
     def client_create_contract(self, socket_handler, contract):
-        self.log.info("New Contract: %s", contract)
+        self.log.datadump("New Contract: %s", contract)
         self.market.save_contract(contract)
 
     def client_remove_contract(self, socket_handler, msg):
@@ -1134,7 +1134,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
                "params" in request and type(request["params"]) == dict
 
     def on_message(self, message):
-        self.log.info('[On Message]: %s', message)
+        self.log.datadump('[On Message]: %s', message)
         try:
             request = json.loads(message)
         except Exception:
