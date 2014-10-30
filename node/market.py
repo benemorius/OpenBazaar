@@ -502,16 +502,18 @@ class Market(object):
         settings = self.get_settings()
         try:
             # Request all messages for our address
-            inboxmsgs = json.loads(
-                self.transport.bitmessage_api.getInboxMessagesByReceiver(
-                    settings['bitmessage']))
-            for m in inboxmsgs['inboxMessages']:
-                # Base64 decode subject and content
-                m['subject'] = b64decode(m['subject'])
-                m['message'] = b64decode(m['message'])
-                # TODO: Augment with market, if available
+            if self.transport.bitmessage_api:
+                inboxmsgs = json.loads(
 
-            return {"messages": inboxmsgs}
+                    self.transport.bitmessage_api.getInboxMessagesByReceiver(
+                        settings['bitmessage']))
+                for m in inboxmsgs['inboxMessages']:
+                    # Base64 decode subject and content
+                    m['subject'] = b64decode(m['subject'])
+                    m['message'] = b64decode(m['message'])
+                    # TODO: Augment with market, if available
+
+                return {"messages": inboxmsgs}
         except Exception as e:
             self.log.error("Failed to get inbox messages: {}".format(e))
             self.log.error(traceback.format_exc())
