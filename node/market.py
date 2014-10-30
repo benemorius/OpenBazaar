@@ -652,7 +652,7 @@ class Market(object):
     def get_settings(self):
         """Get local settings"""
 
-        self.log.info(
+        self.log.debug(
             "Getting settings info for Market %s", self.transport.market_id)
         settings = self.db.getOrCreate(
             "settings",
