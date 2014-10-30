@@ -648,7 +648,7 @@ class Market(object):
     def get_settings(self):
         """Get local settings"""
 
-        self.log.info(
+        self.log.debug(
             "Getting settings info for Market %s", self.transport.market_id)
         settings = self.db.getOrCreate(
             "settings",
@@ -677,7 +677,7 @@ class Market(object):
 
     def query_page(self, find_guid, callback=lambda msg: None):
         """Query network for node"""
-        self.log.info("Searching network for node: %s", find_guid)
+        self.log.info("Searching network for market page of node: %s", find_guid)
         msg = query_page(find_guid)
         msg['uri'] = self.transport.uri
         msg['senderGUID'] = self.transport.guid

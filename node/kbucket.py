@@ -87,12 +87,12 @@ class KBucket(object):
 
         @rtype: guid.GUIDMixin or None
         """
-        self.log.debug('[getContact] %s', contactID)
+        self.log.debugv('[getContact] %s', contactID)
         for contact in self.contacts:
             if contact == contactID:
-                self.log.debug('[getContact] Found %s', contact)
+                self.log.debugv('[getContact] Found %s', contact)
                 return contact
-        self.log.debug('[getContact] No Results')
+        self.log.debugv('[getContact] No Results')
         return None
 
     def getContacts(self, count=-1, excludeContact=None):
@@ -136,7 +136,7 @@ class KBucket(object):
                 # this is a bug.
                 contactList.remove(excludeContact)
             except ValueError:
-                self.log.debug(
+                self.log.warning(
                     '[kbucket.getContacts() warning] '
                     'tried to exclude non-existing contact (%s)',
                     excludeContact
