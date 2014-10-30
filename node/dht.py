@@ -311,7 +311,7 @@ class DHT(object):
                     for idx, probe in enumerate(search.active_probes):
                         if probe == search_tuple:
                             del search.active_probes[idx]
-                    self.log.debug(
+                    self.log.datadump(
                         'Find Node Response - Active Probes After: %s',
                         search.active_probes
                     )
@@ -319,7 +319,7 @@ class DHT(object):
                     # Add this to already contacted list
                     if search_tuple not in search.already_contacted:
                         search.already_contacted.append(search_tuple)
-                    self.log.debug(
+                    self.log.datadump(
                         'Already Contacted: %s',
                         search.already_contacted
                     )
@@ -403,7 +403,7 @@ class DHT(object):
 
     def extendShortlist(self, transport, findID, foundNodes):
 
-        self.log.debug('foundNodes: %s', foundNodes)
+        self.log.datadump('foundNodes: %s', foundNodes)
 
         foundSearch = False
         for s in self.searches:
@@ -415,7 +415,7 @@ class DHT(object):
             self.log.error('There was no search found for this ID')
             return
 
-        self.log.debug('Short list before: %s', search.shortlist)
+        self.log.datadump('Short list before: %s', search.shortlist)
 
         for node in foundNodes:
 
@@ -440,7 +440,7 @@ class DHT(object):
                 self.log.debug('Adding new peer to active peers list: %s', node)
                 self.add_peer(self.transport, node_uri, node_pubkey, node_guid, node_nick)
 
-        self.log.debug('Short list after: %s', search.shortlist)
+        self.log.datadump('Short list after: %s', search.shortlist)
 
     def find_listings(self, transport, key, listingFilter=None, callback=None):
         """
@@ -594,12 +594,13 @@ class DHT(object):
 
     def _on_storeValue(self, msg):
 
-        self.log.debug('Received Store Command %s', msg)
-
         key = msg['key']
         value = msg['value']
         originalPublisherID = msg['originalPublisherID']
         age = msg['age']
+
+        self.log.info('Storing key %s for %s', key, originalPublisherID)
+        self.log.datadump('Value: %s', value)
 
         now = int(time.time())
         originallyPublished = now - age
@@ -607,7 +608,7 @@ class DHT(object):
         if value:
             self.dataStore.setItem(key, value, now, originallyPublished, originalPublisherID, self.market_id)
         else:
-            self.log.info('No value to store')
+            self.log.error('No value to store')
 
     def store(self, key, value, originalPublisherID=None, age=0, **kwargs):
         """ Store the received data in this node's local hash table
@@ -746,7 +747,7 @@ class DHT(object):
 
             # Remove dupes
             new_search.shortlist = self.dedupe(new_search.shortlist)
-            self.log.info(new_search.shortlist)
+            self.log.datadump(new_search.shortlist)
 
             new_search.shortlist.sort(lambda firstNode, secondNode, targetKey=new_search.key: cmp(
                 self.routingTable.distance(firstNode[2], targetKey),
@@ -841,4 +842,4 @@ class DHTSearch(object):
             if item not in self.shortlist:
                 self.shortlist.append(item)
 
-        self.log.debug('Updated short list: %s', self.shortlist)
+        self.log.datadump('Updated short list: %s', self.shortlist)

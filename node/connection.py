@@ -186,6 +186,8 @@ class CryptoPeerConnection(GUIDMixin, PeerConnection):
         sig_data = json.dumps(data).encode('hex')
         signature = self.sign(sig_data).encode('hex')
 
+        self.log.datadump('Sending to peer: %s %s', self.address, pformat(data))
+
         try:
             # Encrypt signature and data
             data = self.encrypt(json.dumps({
