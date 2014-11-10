@@ -382,7 +382,7 @@ class CryptoTransportLayer(TransportLayer):
         self.dht._iterativeFind(self.guid, self.dht.knownNodes, 'findNode')
 
     def get_crypto_peer(self, guid=None, uri=None, pubkey=None, nickname=None):
-        if guid == self.guid:
+        if guid == self.guid or uri == self.uri:
             self.log.debug('Cannot get CryptoPeerConnection for your own node')
             return
 
