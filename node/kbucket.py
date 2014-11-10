@@ -136,7 +136,7 @@ class KBucket(object):
                 # this is a bug.
                 contactList.remove(excludeContact)
             except ValueError:
-                self.log.debug(
+                self.log.warning(
                     '[kbucket.getContacts() warning] '
                     'tried to exclude non-existing contact (%s)',
                     excludeContact

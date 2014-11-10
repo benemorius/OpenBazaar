@@ -210,7 +210,8 @@ class CryptoTransportLayer(TransportLayer):
         return True
 
     def on_hello(self, msg):
-        self.log.info('Pinged %s', json.dumps(msg, ensure_ascii=False))
+        self.log.debug('Received ping from "%s" %s %s',
+                      msg.get('senderNick'), msg.get('uri'), msg.get('senderGUID'))
 
     def validate_on_store(self, msg):
         self.log.debugv('Validating store value message.')
@@ -382,7 +383,7 @@ class CryptoTransportLayer(TransportLayer):
 
     def get_crypto_peer(self, guid=None, uri=None, pubkey=None, nickname=None):
         if guid == self.guid:
-            self.log.error('Cannot get CryptoPeerConnection for your own node')
+            self.log.debug('Cannot get CryptoPeerConnection for your own node')
             return
 
         self.log.debug(
@@ -460,7 +461,7 @@ class CryptoTransportLayer(TransportLayer):
                     routing_peer.send(data, cb)
 
                 except Exception:
-                    self.log.info("Error sending over peer!")
+                    self.log.error('Error sending over peer!')
                     traceback.print_exc()
 
     def _on_message(self, msg):

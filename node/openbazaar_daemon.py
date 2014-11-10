@@ -208,7 +208,7 @@ class MarketApplication(tornado.web.Application):
         ]
 
         # TODO: Move debug settings to configuration location
-        settings = dict(debug=True)
+        settings = dict(debug=False)
         super(MarketApplication, self).__init__(handlers, **settings)
 
     def start_app(self):

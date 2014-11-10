@@ -507,7 +507,7 @@ class Market(object):
 
     def get_contracts(self, page=0):
         """Select contracts for market from database"""
-        self.log.info(
+        self.log.debugv(
             "Getting contracts for market: %s", self.transport.market_id)
         contracts = self.db.selectEntries(
             "contracts",
@@ -614,7 +614,7 @@ class Market(object):
     def get_settings(self):
         """Get local settings"""
 
-        self.log.info(
+        self.log.debug(
             "Getting settings info for Market %s", self.transport.market_id)
         settings = self.db.getOrCreate(
             "settings",
@@ -643,7 +643,7 @@ class Market(object):
 
     def query_page(self, find_guid, callback=lambda msg: None):
         """Query network for node"""
-        self.log.info("Searching network for node: %s", find_guid)
+        self.log.info('Searching network for market page of node: %s', find_guid)
         msg = query_page(find_guid)
         msg['uri'] = self.transport.uri
         msg['senderGUID'] = self.transport.guid
@@ -704,7 +704,7 @@ class Market(object):
 
     def on_query_listings(self, peer, page=0):
         """Run if someone is querying your listings"""
-        self.log.info("Someone is querying your listings: %s", peer)
+        self.log.debug("Someone is querying your listings: %s", peer)
         contracts = self.get_contracts(page)
 
         if len(contracts['contracts']) == 0:

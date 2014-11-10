@@ -921,7 +921,7 @@ class ProtocolHandler(object):
 
     def on_global_search_value(self, results, key):
 
-        self.log.info('global search: %s %s', results, key)
+        self.log.datadump('global search: %s %s', results, key)
         if results and not isinstance(results, list):
             self.log.debug('Listing Data: %s %s', results, key)
 
@@ -1048,7 +1048,7 @@ class ProtocolHandler(object):
     # handler a request
     def handle_request(self, socket_handler, request):
         command = request["command"]
-        self.log.info('(I) ws.ProtocolHandler.handle_request of: %s', command)
+        self.log.debug('Handling request: %s', command)
         if command not in self._handlers:
             return False
         params = request["params"]
@@ -1091,7 +1091,8 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         # pylint: disable=arguments-differ
         # FIXME: Arguments shouldn't differ.
         self.loop = tornado.ioloop.IOLoop.instance()
-        self.log = logging.getLogger(self.__class__.__name__)
+        self.log = logging.getLogger(
+            '[%s] %s' % (transport.market_id, self.__class__.__name__))
         self.log.info("Initialize websockethandler")
         self.market_application = market_application
         self.market = self.market_application.market

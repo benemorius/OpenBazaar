@@ -101,14 +101,14 @@ class DHT(object):
             self._add_known_node(peer_tuple)
 
         self.log.info(
-            'New peer seen; starting handshake - %s %s %s',
-            uri, guid, nickname
-        )
+            'Trying handshake with new peer: "%s" %s %s',
+            nickname, uri, guid)
 
         new_peer = self.transport.get_crypto_peer(guid, uri, pubkey, nickname)
 
         def cb():
-            self.log.debug('Back from handshake %s', new_peer)
+            self.log.info('Finished handshake with peer: "%s" %s %s',
+                          nickname, uri, guid)
             self.transport.save_peer_to_db(peer_tuple)
 
         t = Thread(target=new_peer.start_handshake, args=(cb,))
@@ -119,7 +119,8 @@ class DHT(object):
         :param node: (tuple)
         :return: N/A
         """
-        self.log.debug('Adding known node: %s', node)
+        self.log.debug('Adding known node: "%s" %s %s',
+                       node[3], node[0], node[2])
         if node not in self.knownNodes and node[1] is not None:
             self.knownNodes.append(node)
 
@@ -167,15 +168,15 @@ class DHT(object):
                 if key in self.dataStore and self.dataStore[key] is not None:
                     # Found key in local data store
                     response_msg["foundKey"] = self.dataStore[key]
-                    self.log.info('Found a key: %s', key)
+                    self.log.debug('Found a key: %s', key)
                 else:
-                    self.log.info('Did not find a key: %s', key)
+                    self.log.debug('Did not find a key: %s', key)
                     response_msg["foundNodes"] = self.close_nodes(key, guid)
-                    self.log.info('Sending found close nodes to: %s', guid)
+                    self.log.debug('Sending found close nodes to: %s', guid)
 
                 new_peer.send(response_msg)
             else:
-                self.log.info('Sending found nodes to: %s', guid)
+                self.log.debug('Sending found nodes to: %s', guid)
                 response_msg["foundNodes"] = self.close_nodes(key, guid)
 
                 new_peer.send(response_msg)
@@ -248,7 +249,7 @@ class DHT(object):
                         foundSearch = True
 
                 if not foundSearch:
-                    self.log.info('No search found')
+                    self.log.debug('No search found')
                     return
                 else:
 
@@ -259,10 +260,10 @@ class DHT(object):
 
                     # Extends shortlist if necessary
                     for node in msg['foundNodes']:
-                        self.log.info('FOUND NODE: %s', node)
+                        self.log.debug('FOUND NODE: %s', node)
                         if node[0] != self.transport.guid and node[2] != self.transport.pubkey \
                                 and node[1] != self.transport.uri:
-                            self.log.info('Found it %s %s', node[0], self.transport.guid)
+                            self.log.debug('Found it %s %s', node[0], self.transport.guid)
                             nodes_to_extend.append(node)
 
                     self.extendShortlist(msg['findID'], nodes_to_extend)
@@ -290,10 +291,10 @@ class DHT(object):
 
                     # If we added more to shortlist then keep searching
                     if len(search.shortlist) > shortlist_length:
-                        self.log.info('Lets keep searching')
+                        self.log.debug('Lets keep searching')
                         self._searchIteration(search)
                     else:
-                        self.log.info('Shortlist is empty')
+                        self.log.debug('Shortlist is empty')
                         if search.callback is not None:
                             search.callback(search.shortlist)
 
@@ -751,7 +752,7 @@ class DHT(object):
                         new_search.contactedNow += 1
 
                     else:
-                        self.log.error('No contact was found for this guid: %s', node[2])
+                        self.log.debug('No contact was found for this guid: %s', node[2])
 
     def activeSearchExists(self, findID):
 
