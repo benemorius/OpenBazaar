@@ -106,6 +106,8 @@ class DHT(object):
 
         new_peer = self.transport.get_crypto_peer(guid, uri, pubkey, nickname)
 
+        if not new_peer: return
+
         def cb():
             self.log.info('Finished handshake with peer: "%s" %s %s',
                           nickname, uri, guid)

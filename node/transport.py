@@ -396,9 +396,12 @@ class CryptoTransportLayer(TransportLayer):
         )
 
         if uri not in self.peers:
-            self.peers[uri] = connection.CryptoPeerConnection(
-                self, uri, pubkey, guid=guid, nickname=nickname
-            )
+            try:
+                self.peers[uri] = connection.CryptoPeerConnection(
+                    self, uri, pubkey, guid=guid, nickname=nickname
+                )
+            except:
+                return
         else:
             # FIXME this is wrong to do here, but it keeps this as close as
             # possible to the original pre-connection-reuse behavior
@@ -472,12 +475,17 @@ class CryptoTransportLayer(TransportLayer):
         pubkey = msg.get('pubkey')
         uri = msg.get('uri')
         guid = msg.get('senderGUID')
-        nickname = msg.get('senderNick')[:120]
+        if(msg.get('senderNick')):
+            nickname = msg.get('senderNick')[:120]
         msgType = msg.get('type')
 
         self.log.info('Received message type "%s" from "%s" %s %s',
                       msgType, nickname, uri, guid)
         self.log.datadump('Raw message: %s', json.dumps(msg, ensure_ascii=False))
+
+        if not uri:
+            return
+
         self.dht.add_peer(uri, pubkey, guid, nickname)
         t = Thread(target=self.trigger_callbacks, args=(msg['type'], msg,))
         t.start()
